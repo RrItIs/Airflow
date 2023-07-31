@@ -33,6 +33,7 @@ from airflow.template.templater import Templater
 from airflow.utils.context import Context
 from airflow.utils.db import exists_query
 from airflow.utils.log.secrets_masker import redact
+from airflow.utils.openlineage_mixin import OpenLineageMixin
 from airflow.utils.session import NEW_SESSION, provide_session
 from airflow.utils.setup_teardown import SetupTeardownContext
 from airflow.utils.sqlalchemy import skip_locked, with_row_locks
@@ -82,7 +83,7 @@ class NotMapped(Exception):
     """Raise if a task is neither mapped nor has any parent mapped groups."""
 
 
-class AbstractOperator(Templater, DAGNode):
+class AbstractOperator(Templater, DAGNode, OpenLineageMixin):
     """Common implementation for operators, including unmapped and mapped.
 
     This base class is more about sharing implementations, not defining a common

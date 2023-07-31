@@ -32,6 +32,7 @@ from airflow.providers.openlineage.plugins.facets import (
 from airflow.providers.openlineage.utils.utils import get_filtered_unknown_operator_keys
 from airflow.utils.log.logging_mixin import LoggingMixin
 from airflow.utils.module_loading import import_string
+from airflow.utils.openlineage_mixin import OpenLineageMixin
 
 if TYPE_CHECKING:
     from airflow.models import Operator
@@ -135,14 +136,7 @@ class ExtractorManager(LoggingMixin):
         if task.task_type in self.extractors:
             return self.extractors[task.task_type]
 
-        def method_exists(method_name):
-            method = getattr(task, method_name, None)
-            if method:
-                return callable(method)
-
-        if method_exists("get_openlineage_facets_on_start") or method_exists(
-            "get_openlineage_facets_on_complete"
-        ):
+        if isinstance(task, OpenLineageMixin):
             return self.default_extractor
         return None
 

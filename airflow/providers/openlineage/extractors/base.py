@@ -91,13 +91,10 @@ class DefaultExtractor(BaseExtractor):
 
     def extract_on_complete(self, task_instance) -> OperatorLineage | None:
         if task_instance.state == TaskInstanceState.FAILED:
-            on_failed = getattr(self.operator, "get_openlineage_facets_on_failure", None)
-            if on_failed and callable(on_failed):
-                return self._get_openlineage_facets(on_failed, task_instance)
-        on_complete = getattr(self.operator, "get_openlineage_facets_on_complete", None)
-        if on_complete and callable(on_complete):
-            return self._get_openlineage_facets(on_complete, task_instance)
-        return self.extract()
+            return self._get_openlineage_facets(
+                self.operator.get_openlineage_facets_on_failure, task_instance
+            )
+        return self._get_openlineage_facets(self.operator.get_openlineage_facets_on_complete, task_instance)
 
     def _get_openlineage_facets(self, get_facets_method, *args) -> OperatorLineage | None:
         try:

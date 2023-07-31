@@ -16,14 +16,19 @@
 # under the License.
 from __future__ import annotations
 
+import logging
 import os
 
 from airflow.configuration import conf
 from airflow.plugins_manager import AirflowPlugin
 from airflow.providers.openlineage.plugins.macros import lineage_parent_id, lineage_run_id
 
+log = logging.getLogger("airflow")
+
 
 def _is_disabled() -> bool:
+    log.error(conf.getboolean("openlineage", "disabled"))
+    log.error(os.getenv("OPENLINEAGE_DISABLED", "false").lower())
     return (
         conf.getboolean("openlineage", "disabled")
         or os.getenv("OPENLINEAGE_DISABLED", "false").lower() == "true"
@@ -41,6 +46,8 @@ class OpenLineageProviderPlugin(AirflowPlugin):
     name = "OpenLineageProviderPlugin"
     macros = [lineage_run_id, lineage_parent_id]
     if not _is_disabled():
+        log.error("EEE?")
+        log.error(_is_disabled())
         from airflow.providers.openlineage.plugins.listener import OpenLineageListener
 
         listeners = [OpenLineageListener()]

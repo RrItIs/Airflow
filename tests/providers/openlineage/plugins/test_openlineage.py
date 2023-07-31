@@ -17,6 +17,7 @@
 from __future__ import annotations
 
 import contextlib
+import logging
 import os
 import sys
 from unittest.mock import patch
@@ -24,6 +25,8 @@ from unittest.mock import patch
 import pytest
 
 from tests.test_utils.config import conf_vars
+
+log = logging.getLogger("airflow")
 
 
 class TestOpenLineageProviderPlugin:
@@ -55,7 +58,14 @@ class TestOpenLineageProviderPlugin:
         with contextlib.ExitStack() as stack:
             for mock in mocks:
                 stack.enter_context(mock)
-            from airflow.providers.openlineage.plugins.openlineage import OpenLineageProviderPlugin
+            from airflow.providers.openlineage.plugins.openlineage import (
+                OpenLineageProviderPlugin,
+                _is_disabled,
+            )
 
             plugin = OpenLineageProviderPlugin()
+
+            log.error(_is_disabled())
+            log.error(plugin.listeners)
+            log.error(expected)
             assert len(plugin.listeners) == expected

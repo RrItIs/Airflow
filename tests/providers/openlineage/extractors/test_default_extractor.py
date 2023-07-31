@@ -137,7 +137,7 @@ class OperatorWrongOperatorLineageClass(BaseOperator):
         )
 
 
-class BrokenOperator(BaseOperator):
+class BrokenOperator:
     get_openlineage_facets = []
 
     def execute(self, context) -> Any:
@@ -145,7 +145,7 @@ class BrokenOperator(BaseOperator):
 
 
 def test_default_extraction():
-    extractor = ExtractorManager().get_extractor_class(ExampleOperator)
+    extractor = ExtractorManager().get_extractor_class(ExampleOperator(task_id="test"))
     assert extractor is DefaultExtractor
 
     metadata = extractor(ExampleOperator(task_id="test")).extract()
@@ -172,7 +172,7 @@ def test_default_extraction():
 
 
 def test_extraction_without_on_complete():
-    extractor = ExtractorManager().get_extractor_class(OperatorWithoutComplete)
+    extractor = ExtractorManager().get_extractor_class(OperatorWithoutComplete(task_id="test"))
     assert extractor is DefaultExtractor
 
     metadata = extractor(OperatorWithoutComplete(task_id="test")).extract()
@@ -196,7 +196,7 @@ def test_extraction_without_on_complete():
 
 
 def test_extraction_without_on_start():
-    extractor = ExtractorManager().get_extractor_class(OperatorWithoutStart)
+    extractor = ExtractorManager().get_extractor_class(OperatorWithoutStart(task_id="test"))
     assert extractor is DefaultExtractor
 
     metadata = extractor(OperatorWithoutStart(task_id="test")).extract()
@@ -215,16 +215,6 @@ def test_extraction_without_on_start():
         run_facets=RUN_FACETS,
         job_facets=FINISHED_FACETS,
     )
-
-
-def test_does_not_use_default_extractor_when_not_a_method():
-    extractor_class = ExtractorManager().get_extractor_class(BrokenOperator(task_id="a"))
-    assert extractor_class is None
-
-
-def test_does_not_use_default_extractor_when_no_get_openlineage_facets():
-    extractor_class = ExtractorManager().get_extractor_class(BaseOperator(task_id="b"))
-    assert extractor_class is None
 
 
 def test_does_not_use_default_extractor_when_explicite_extractor():
